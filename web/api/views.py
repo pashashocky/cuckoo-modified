@@ -1173,11 +1173,12 @@ def tasks_status(request, task_id):
                 "error_value": "Task status API is disabled"}
         return jsonize(resp, response=True)
 
-    status = db.view_task(task_id).to_dict()["status"]
+    status = db.view_task(task_id)
     if not status:
         resp = {"error": True,
                 "error_value": "Task does not exist"}
     else:
+        status = status.to_dict()["status"]
         resp = {"error": False,
                 "data": status}
 
@@ -1341,8 +1342,11 @@ def tasks_iocs(request, task_id, detail=None):
     if "target" in buf.keys():
         data["target"] = buf["target"]
         if data["target"]["category"] == "file":
-            del data["target"]["file"]["path"]
-            del data["target"]["file"]["guest_paths"]
+            try:
+                del data["target"]["file"]["path"]
+                del data["target"]["file"]["guest_paths"]
+            except KeyError:
+                pass
     data["network"] = {}
     if "network" in buf.keys():
         data["network"]["traffic"] = {}
@@ -1351,9 +1355,12 @@ def tasks_iocs(request, task_id, detail=None):
                 data["network"]["traffic"][netitem + "_count"] = len(buf["network"][netitem])
             else:
                 data["network"]["traffic"][netitem + "_count"] = 0
-        data["network"]["traffic"]["http"] = buf["network"]["http"]
-        data["network"]["hosts"] = buf["network"]["hosts"]
-        data["network"]["domains"] = buf["network"]["domains"]
+        try:
+            data["network"]["traffic"]["http"] = buf["network"]["http"]
+            data["network"]["hosts"] = buf["network"]["hosts"]
+            data["network"]["domains"] = buf["network"]["domains"]
+        except KeyError:
+            pass
     data["network"]["ids"] = {}
     if "suricata" in buf.keys():
         data["network"]["ids"]["totalalerts"] = len(buf["suricata"]["alerts"])
