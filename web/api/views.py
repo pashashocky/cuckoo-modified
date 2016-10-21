@@ -1382,33 +1382,36 @@ def tasks_iocs(request, task_id, detail=None):
         pe = {}
         pdf = {}
         office = {}
-        if "peid_signatures" in buf["static"] and buf["static"]["peid_signatures"]:
-            pe["peid_signatures"] = buf["static"]["peid_signatures"]
-        if "pe_timestamp" in buf["static"] and buf["static"]["pe_timestamp"]:
-            pe["pe_timestamp"] = buf["static"]["pe_timestamp"]
-        if "pe_imphash" in buf["static"] and buf["static"]["pe_imphash"]:
-            pe["pe_imphash"] = buf["static"]["pe_imphash"]
-        if "pe_icon_hash" in buf["static"] and buf["static"]["pe_icon_hash"]:
-            pe["pe_icon_hash"] = buf["static"]["pe_icon_hash"]
-        if "pe_icon_fuzzy" in buf["static"] and buf["static"]["pe_icon_fuzzy"]:
-            pe["pe_icon_fuzzy"] = buf["static"]["pe_icon_fuzzy"]
-        if "Objects" in buf["static"] and buf["static"]["Objects"]:
-            pdf["objects"] = len(buf["static"]["Objects"])
-        if "Info" in buf["static"] and buf["static"]["Info"]:
-            if "PDF Header" in buf["static"]["Info"].keys():
-                pdf["header"] = buf["static"]["Info"]["PDF Header"]
-        if "Streams" in buf["static"]:
-            if "/Page" in buf["static"]["Streams"].keys():
-                pdf["pages"] = buf["static"]["Streams"]["/Page"]
-        if "Macro" in buf["static"] and buf["static"]["Macro"]:
-            if "Analysis" in buf["static"]["Macro"]:
-                office["signatures"] = {}
-                for item in buf["static"]["Macro"]["Analysis"]:
-                    office["signatures"][item] = []
-                    for indicator, desc in buf["static"]["Macro"]["Analysis"][item]:
-                        office["signatures"][item].append((indicator, desc))
-            if "Code" in buf["static"]["Macro"]:
-                office["macros"] = len(buf["static"]["Macro"]["Code"])
+        try:
+            if "peid_signatures" in buf["static"] and buf["static"]["peid_signatures"]:
+                pe["peid_signatures"] = buf["static"]["peid_signatures"]
+            if "pe_timestamp" in buf["static"] and buf["static"]["pe_timestamp"]:
+                pe["pe_timestamp"] = buf["static"]["pe_timestamp"]
+            if "pe_imphash" in buf["static"] and buf["static"]["pe_imphash"]:
+                pe["pe_imphash"] = buf["static"]["pe_imphash"]
+            if "pe_icon_hash" in buf["static"] and buf["static"]["pe_icon_hash"]:
+                pe["pe_icon_hash"] = buf["static"]["pe_icon_hash"]
+            if "pe_icon_fuzzy" in buf["static"] and buf["static"]["pe_icon_fuzzy"]:
+                pe["pe_icon_fuzzy"] = buf["static"]["pe_icon_fuzzy"]
+            if "Objects" in buf["static"] and buf["static"]["Objects"]:
+                pdf["objects"] = len(buf["static"]["Objects"])
+            if "Info" in buf["static"] and buf["static"]["Info"]:
+                if "PDF Header" in buf["static"]["Info"].keys():
+                    pdf["header"] = buf["static"]["Info"]["PDF Header"]
+            if "Streams" in buf["static"]:
+                if "/Page" in buf["static"]["Streams"].keys():
+                    pdf["pages"] = buf["static"]["Streams"]["/Page"]
+            if "Macro" in buf["static"] and buf["static"]["Macro"]:
+                if "Analysis" in buf["static"]["Macro"]:
+                    office["signatures"] = {}
+                    for item in buf["static"]["Macro"]["Analysis"]:
+                        office["signatures"][item] = []
+                        for indicator, desc in buf["static"]["Macro"]["Analysis"][item]:
+                            office["signatures"][item].append((indicator, desc))
+                if "Code" in buf["static"]["Macro"]:
+                    office["macros"] = len(buf["static"]["Macro"]["Code"])
+        except TypeError:
+            pass
         data["static"]["pe"] = pe
         data["static"]["pdf"] = pdf
         data["static"]["office"] = office
